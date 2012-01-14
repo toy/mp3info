@@ -1,11 +1,10 @@
-= ruby-mp3info
+= mp3info
 
-* http://github.com/moumar/ruby-mp3info
+* http://github.com/toy/mp3info
 
 == DESCRIPTION:
 
-ruby-mp3info read low-level informations and manipulate tags on
-mp3 files.
+mp3info read low-level informations and manipulate tags on mp3 files.
 
 == FEATURES/PROBLEMS:
 
@@ -56,22 +55,7 @@ mp3 files.
 
 == INSTALL:
 
-$ ruby install.rb config
-$ ruby install.rb setup
-# ruby install.rb install
-
-  or
-
-* gem install ruby-mp3info
-
-== DEVELOPERS:
-
-After checking out the source, run:
-
-  $ rake newb
-
-This task will install any missing dependencies, run the tests/specs,
-and generate the RDoc.
+* gem install mp3info
 
 == LICENSE:
 
