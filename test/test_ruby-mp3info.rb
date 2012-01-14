@@ -226,18 +226,14 @@ class Mp3InfoTest < Test::Unit::TestCase
     start = false
     id3v2_output = {}
     `id3v2 -l #{TEMP_FILE}`.split(/\n/).each do |line|
-      if line =~ /^id3v2 tag info/
-        start = true 
-	next    
-      end
-      next unless start
-      k, v = /^(.{4}) \(.+\): (.+)$/.match(line)[1,2]
-      case k
-	#COMM (Comments): ()[spa]: fmg
+      if m = /^(.{4}) \(.+\): (.+)$/.match(line)
+        k, v = m[1, 2]
+        case k
         when "COMM"
-	  v.sub!(/\(\)\[.{3}\]: (.+)/, '\1')
+          v.sub!(/\(\)\[.{3}\]: (.+)/, '\1')
+        end
+        id3v2_output[k] = v
       end
-      id3v2_output[k] = v
     end
 
     assert_equal( id3v2_output, written_tag, "id3v2 program output doesn't match")
