@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name        = 'mp3info'
-  s.version     = '0.6.16'
+  s.version     = '0.6.17'
   s.summary     = %q{Read low-level informations and manipulate tags on mp3 files.}
   s.homepage    = "http://github.com/toy/#{s.name}"
   s.authors     = ['Guillaume Pierronnet', 'Ivan Kuchin']
