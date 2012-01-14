@@ -1,3 +1,8 @@
+=== 0.6.17 / 2012-01-15
+
+* fixed stringio related problems
+* cleanup project
+
 === 0.6.16 / 2011-11-10
 
 * fixed type error when inspecting mp3info (thanks to Jacob Lichner)
@@ -29,8 +34,7 @@
 
 === 0.6.11 / 2009-01-27
 
-* the library doesn't raise an ID3v2Error anymore when a id3v2 tag size is incorrect, but just output
-  a warning. (Fixes bug #23619)
+* the library doesn't raise an ID3v2Error anymore when a id3v2 tag size is incorrect, but just output a warning. (Fixes bug #23619)
 
 === 0.6.10 / 2008-11-27
 
@@ -59,8 +63,7 @@
 
 === 0.6.5 / 2008-04-19
 
-* added Mp3Info#audio_content method, to return "audio-only" boundaries from mp3, i.e. data without tags
-  (closes feature request #17230)
+* added Mp3Info#audio_content method, to return "audio-only" boundaries from mp3, i.e. data without tags (closes feature request #17230)
 * bugfix on reading id3 2.4 (size not syncsafed)
 * more robust tag decoding with bad tags
 
@@ -74,10 +77,7 @@
 
 === 0.6.2 / 2008-03-02
 
-* better handling of frames: 
-  decode and encode as raw string by default,
-  or handle charset decoding/encoding for /^T/ and 
-  COMM frames
+* better handling of frames: decode and encode as raw string by default, or handle charset decoding/encoding for /^T/ and COMM frames
 
 === 0.6.1 / 2008-02-28
 

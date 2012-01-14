@@ -18,7 +18,7 @@ class Mp3InfoTest < Test::Unit::TestCase
 
   DUMMY_TAG2 = {
     "COMM" => "comments",
-    #"TCON" => "genre_s" 
+    #"TCON" => "genre_s"
     "TIT2" => "title",
     "TPE1" => "artist",
     "TALB" => "album",
@@ -28,7 +28,7 @@ class Mp3InfoTest < Test::Unit::TestCase
 
   DUMMY_TAG1 = {
     "title"    => "toto",
-    "artist"   => "artist 123", 
+    "artist"   => "artist 123",
     "album"    => "ALBUMM",
     "year"     => 1934,
     "tracknum" => 14,
@@ -49,7 +49,7 @@ class Mp3InfoTest < Test::Unit::TestCase
     @valid_mp3, @valid_mp3_2_2, @vbr_mp3 = %w{empty_mp3 2_2_tagged vbr}.collect do |fixture_key|
       Zlib::Inflate.inflate(FIXTURES[fixture_key])
     end
-                  
+
     @tag = {
       "title" => "title",
       "artist" => "artist",
@@ -86,13 +86,13 @@ class Mp3InfoTest < Test::Unit::TestCase
       Mp3Info.new(TEMP_FILE).close
     end
   end
-  
+
   def test_detected_info
     Mp3Info.open(TEMP_FILE) do |mp3|
       assert_mp3_info_are_ok(mp3)
     end
   end
-  
+
   def test_vbr_mp3_length
     File.open(TEMP_FILE, "w") { |f| f.write(@vbr_mp3) }
 
@@ -128,7 +128,7 @@ class Mp3InfoTest < Test::Unit::TestCase
     }
     id3_test(tag, valid_tag)
   end
-  
+
   def test_valid_tag1_0
     tag = [ "title", "artist", "album", "1921", "comments", 0].pack('A30A30A30A4A30C')
     valid_tag = {
@@ -164,7 +164,7 @@ class Mp3InfoTest < Test::Unit::TestCase
   end
 
   def test_hastags
-    Mp3Info.open(TEMP_FILE) do |info| 
+    Mp3Info.open(TEMP_FILE) do |info|
       info.tag1 = @tag
     end
     assert(Mp3Info.hastag1?(TEMP_FILE))
@@ -174,10 +174,10 @@ class Mp3InfoTest < Test::Unit::TestCase
   end
 
   def test_universal_tag
-    2.times do 
+    2.times do
       tag = {"title" => "title"}
       Mp3Info.open(TEMP_FILE) do |mp3|
-	tag.each { |k,v| mp3.tag[k] = v }
+        tag.each { |k,v| mp3.tag[k] = v }
       end
       w = Mp3Info.open(TEMP_FILE) { |m| m.tag }
       assert_equal(tag, w)
@@ -259,7 +259,7 @@ class Mp3InfoTest < Test::Unit::TestCase
   end
 
   def test_infinite_loop_on_seek_to_v2_end
-    
+
   end
 
   def test_leading_char_gets_chopped
@@ -280,7 +280,7 @@ class Mp3InfoTest < Test::Unit::TestCase
 
     Mp3Info.open(TEMP_FILE) do |mp3|
       assert_equal "2.2.0", mp3.tag2.version
-      expected_tag = { 
+      expected_tag = {
         "TCO" => "Hip Hop/Rap",
         "TP1" => "Grems Aka Supermicro",
         "TT2" => "Intro",
@@ -294,7 +294,7 @@ class Mp3InfoTest < Test::Unit::TestCase
       tag.delete("COM")
       assert_equal expected_tag, tag
 
-      expected_tag = { 
+      expected_tag = {
         "genre_s"       => "Hip Hop/Rap",
         "title"         => "Intro",
         #"comments"      => "\000engiTunPGAP\0000\000\000",
@@ -314,7 +314,7 @@ class Mp3InfoTest < Test::Unit::TestCase
       mp3.tag.artist = "toto"
       mp3.tag.comments = "comments"
       mp3.flush
-      expected_tag = { 
+      expected_tag = {
         "artist" => "toto",
         "genre_s" => "Hip Hop/Rap",
         "title" => "Intro",
@@ -403,9 +403,9 @@ class Mp3InfoTest < Test::Unit::TestCase
 
 =begin
   def test_should_raises_exception_when_writing_badly_encoded_frames
-    assert_raises(Iconv::Failure) do 
+    assert_raises(Iconv::Failure) do
       Mp3Info.open(TEMP_FILE, :encoding => 'utf-8') do |mp3|
-	mp3.tag2['TEST'] = "all\xc3"
+        mp3.tag2['TEST'] = "all\xc3"
       end
     end
   end
@@ -492,7 +492,7 @@ class Mp3InfoTest < Test::Unit::TestCase
   end
 
   def test_hastag_class_methods_with_a_stringio
-    Mp3Info.open(TEMP_FILE) do |info| 
+    Mp3Info.open(TEMP_FILE) do |info|
       info.tag1 = @tag
     end
     io = load_string_io
@@ -534,12 +534,12 @@ class Mp3InfoTest < Test::Unit::TestCase
     assert_equal("JStereo", mp3.channel_mode)
     assert_equal(44100, mp3.samplerate)
     assert_equal(0.1305625, mp3.length)
-    assert_equal({:original => true, 
-                  :error_protection => false, 
-                  :padding => false, 
-                  :emphasis => 0, 
-                  :private => true, 
-                  :mode_extension => 2, 
+    assert_equal({:original => true,
+                  :error_protection => false,
+                  :padding => false,
+                  :emphasis => 0,
+                  :private => true,
+                  :mode_extension => 2,
                   :copyright => false}, mp3.header)
   end
 

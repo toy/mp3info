@@ -14,11 +14,11 @@ class ID3v2Error < StandardError ; end
 # It works like a hash, where key represents the tag name as 3 or 4 upper case letters
 # (respectively related to 2.2 and 2.3+ tag) and value represented as array or raw value.
 # Written version is always 2.3.
-class ID3v2 < DelegateClass(Hash) 
-  
+class ID3v2 < DelegateClass(Hash)
+
   # Major version used when writing tags
   WRITE_VERSION = 3
-  
+
   TAGS = {
     "AENC" => "Audio encryption",
     "APIC" => "Attached picture",
@@ -163,29 +163,29 @@ class ID3v2 < DelegateClass(Hash)
   TEXT_ENCODINGS = ["iso-8859-1", "utf-16", "utf-16be", "utf-8"]
 
   include Mp3Info::HashKeys
-  
+
   # this is the position in the file where the tag really ends
   attr_reader :io_position
 
   # :+lang+: for writing comments
   #
-  # :+encoding+: one of the string of +TEXT_ENCODINGS+, 
+  # :+encoding+: one of the string of +TEXT_ENCODINGS+,
   # used as a source and destination encoding respectively
   # for read and write tag2 values.
   attr_reader :options
-  
+
   # possible options are described above ('options' attribute)
   # you can access this object like an hash, with [] and []= methods
   # special cases are ["disc_number"] and ["disc_total"] mirroring TPOS attribute
   def initialize(options = {})
-    @options = { 
+    @options = {
       :lang => "ENG",
       :encoding => "iso-8859-1"
     }
 
     @options.update(options)
     @text_encoding_index = TEXT_ENCODINGS.index(@options[:encoding])
-    
+
     unless @text_encoding_index
       raise(ArgumentError, "bad id3v2 text encoding specified")
     end
@@ -207,7 +207,7 @@ class ID3v2 < DelegateClass(Hash)
   def changed?
     @hash_orig != @hash
   end
-  
+
   # full version of this tag (like "2.3.0") or nil
   # if tag was not correctly read
   def version
@@ -228,7 +228,7 @@ class ID3v2 < DelegateClass(Hash)
     raise(ID3v2Error, "can't find version_maj ('#{version_maj}')") unless [2, 3, 4].include?(version_maj)
     @version_maj, @version_min = version_maj, version_min
     @tag_length = @io.get_syncsafe
-    
+
     @parsed = true
     begin
       case @version_maj
@@ -260,13 +260,13 @@ class ID3v2 < DelegateClass(Hash)
     @hash.each do |k, v|
       next unless v
       next if v.respond_to?("empty?") and v.empty?
-      
+
       # Automagically translate V2 to V3 tags
       k = TAG_MAPPING_2_2_to_2_3[k] if TAG_MAPPING_2_2_to_2_3.has_key?(k)
 
       # doesn't encode id3v2.2 tags, which have 3 characters
-      next if k.size != 4 
-      
+      next if k.size != 4
+
       # Output one flag for each array element, or one only if it's not an array
       [v].flatten.each do |value|
         data = encode_tag(k, value.to_s, WRITE_VERSION)
@@ -285,7 +285,7 @@ class ID3v2 < DelegateClass(Hash)
     end
 
     tag_str = "ID3"
-    #version_maj, version_min, unsync, ext_header, experimental, footer 
+    #version_maj, version_min, unsync, ext_header, experimental, footer
     tag_str << [ WRITE_VERSION, 0, "0000" ].pack("CCB4")
     tag_str << [to_syncsafe(tag.size)].pack("N")
     tag_str << tag
@@ -298,28 +298,28 @@ class ID3v2 < DelegateClass(Hash)
   def encode_tag(name, value, version)
     puts "encode_tag(#{name.inspect}, #{value.inspect}, #{version})" if $DEBUG
 
-    text_encoding_index = @text_encoding_index 
+    text_encoding_index = @text_encoding_index
     if (name.index("T") == 0 || name == "COMM" ) && version == 3
       # in id3v2.3 tags, there is only 2 encodings possible
       transcoded_value = value
       if text_encoding_index >= 2
         begin
-	  transcoded_value = Iconv.iconv(TEXT_ENCODINGS[1], 
-					 TEXT_ENCODINGS[text_encoding_index], 
-					 value).first
+          transcoded_value = Iconv.iconv(TEXT_ENCODINGS[1],
+                                          TEXT_ENCODINGS[text_encoding_index],
+                                          value).first
         rescue Iconv::Failure
-	  transcoded_value = value
-	end
-	text_encoding_index = 1
+          transcoded_value = value
+        end
+        text_encoding_index = 1
       end
     end
 
     case name
       when "COMM"
       puts "encode COMM: enc: #{text_encoding_index}, lang: #{@options[:lang]}, str: #{transcoded_value.dump}" if $DEBUG
-	[ text_encoding_index , @options[:lang], 0, transcoded_value ].pack("ca3ca*")
+        [ text_encoding_index , @options[:lang], 0, transcoded_value ].pack("ca3ca*")
       when /^T/
-	text_encoding_index.chr + transcoded_value
+        text_encoding_index.chr + transcoded_value
       else
         value
     end
@@ -331,19 +331,19 @@ class ID3v2 < DelegateClass(Hash)
     case name
       when /^COM/
         #FIXME improve this
-	encoding, lang, str = raw_value.unpack("ca3a*") 
-	out = raw_value.split(0.chr).last
+        encoding, lang, str = raw_value.unpack("ca3a*")
+        out = raw_value.split(0.chr).last
       when /^T/
-	encoding = raw_value.getbyte(0) # language encoding (see TEXT_ENCODINGS constant)   
-	out = raw_value[1..-1] 
-	# we need to convert the string in order to match
-	# the requested encoding
-	if encoding && TEXT_ENCODINGS[encoding] && out && encoding != @text_encoding_index
-	  begin
-	    out = Iconv.iconv(@options[:encoding], TEXT_ENCODINGS[encoding], out).first
-	  rescue Iconv::Failure
-	  end
-	end
+        encoding = raw_value.getbyte(0) # language encoding (see TEXT_ENCODINGS constant)
+        out = raw_value[1..-1]
+        # we need to convert the string in order to match
+        # the requested encoding
+        if encoding && TEXT_ENCODINGS[encoding] && out && encoding != @text_encoding_index
+          begin
+            out = Iconv.iconv(@options[:encoding], TEXT_ENCODINGS[encoding], out).first
+          rescue Iconv::Failure
+          end
+        end
         # remove padding zeros for textual tags
         out.sub!(/\0*$/, '') unless out.nil?
         return out
@@ -359,21 +359,21 @@ class ID3v2 < DelegateClass(Hash)
       name = @io.read(4)
       if name.nil? || name.getbyte(0) == 0 || name == "MP3e" #bug caused by old tagging application "mp3ext" ( http://www.mutschler.de/mp3ext/ )
         @io.seek(-4, IO::SEEK_CUR)    # 1. find a padding zero,
-	seek_to_v2_end
+        seek_to_v2_end
         break
-      else               
-	if @version_maj == 4
-	  size = @io.get_syncsafe
-	else
-	  size = @io.get32bits
-	end
+      else
+        if @version_maj == 4
+          size = @io.get_syncsafe
+        else
+          size = @io.get32bits
+        end
         @io.seek(2, IO::SEEK_CUR)     # skip flags
         puts "name '#{name}' size #{size}" if $DEBUG
         add_value_to_tag2(name, size)
       end
       break if @io.pos >= @tag_length # 2. reach length from header
     end
-  end    
+  end
 
   ### reads id3 ver 2.2.x frames and adds the contents to @tag2 hash
   ### NOTE: the id3v2 header does not take padding zero's into consideration
@@ -382,16 +382,16 @@ class ID3v2 < DelegateClass(Hash)
       name = @io.read(3)
       if name.nil? || name.getbyte(0) == 0
         @io.seek(-3, IO::SEEK_CUR)
-	seek_to_v2_end
+        seek_to_v2_end
         break
       else
         size = (@io.getbyte << 16) + (@io.getbyte << 8) + @io.getbyte
-	add_value_to_tag2(name, size)
+        add_value_to_tag2(name, size)
         break if @io.pos >= @tag_length
       end
     end
-  end    
-  
+  end
+
   ### Add data to tag2["name"]
   ### read lang_encoding, decode data if unicode and
   ### create an array if the key already exists in the tag
@@ -401,7 +401,7 @@ class ID3v2 < DelegateClass(Hash)
     if size > 50_000_000
       raise ID3v2Error, "tag size is > 50_000_000"
     end
-      
+
     data_io = @io.read(size)
     data = decode_tag(name, data_io)
 
@@ -416,11 +416,11 @@ class ID3v2 < DelegateClass(Hash)
       end
       self[name] << data
     else
-      self[name] = data 
+      self[name] = data
     end
     p data if $DEBUG
   end
-  
+
   ### runs thru @file one char at a time looking for best guess of first MPEG
   ###  frame, which should be first 0xff byte after id3v2 padding zero's
   def seek_to_v2_end
@@ -429,10 +429,9 @@ class ID3v2 < DelegateClass(Hash)
     end
     @io.seek(-1, IO::SEEK_CUR)
   end
-  
+
   ### convert an 32 integer to a syncsafe string
   def to_syncsafe(num)
     ( (num<<3) & 0x7f000000 )  + ( (num<<2) & 0x7f0000 ) + ( (num<<1) & 0x7f00 ) + ( num & 0x7f )
   end
 end
-

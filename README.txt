@@ -9,7 +9,7 @@ mp3 files.
 
 == FEATURES/PROBLEMS:
 
-* written in pure ruby 
+* written in pure ruby
 * read low-level informations like bitrate, length, samplerate, etc...
 * read, write, remove id3v1 and id3v2 tags
 * correctly read VBR files (with or without Xing header)
@@ -27,8 +27,8 @@ mp3 files.
   # when reading tag2 have priority over tag1
   # when writing, each tag is written.
   Mp3Info.open("myfile.mp3") do |mp3|
-    puts mp3.tag.title   
-    puts mp3.tag.artist   
+    puts mp3.tag.title
+    puts mp3.tag.artist
     puts mp3.tag.album
     puts mp3.tag.tracknum
     mp3.tag.title = "track title"
@@ -60,7 +60,7 @@ $ ruby install.rb config
 $ ruby install.rb setup
 # ruby install.rb install
 
- or
+  or
 
 * gem install ruby-mp3info
 
