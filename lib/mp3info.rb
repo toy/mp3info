@@ -3,6 +3,7 @@
 # Author:: Guillaume Pierronnet (mailto:moumar_AT__rubyforge_DOT_org)
 # Website:: http://ruby-mp3info.rubyforge.org/
 
+require 'stringio'
 require "fileutils"
 require "mp3info/extension_modules"
 require "mp3info/id3v2"
