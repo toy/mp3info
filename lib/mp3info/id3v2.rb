@@ -180,7 +180,7 @@ class ID3v2 < DelegateClass(Hash)
   def initialize(options = {})
     @options = {
       :lang => "ENG",
-      :encoding => "iso-8859-1"
+      :encoding => 'utf-8'
     }
 
     @options.update(options)
