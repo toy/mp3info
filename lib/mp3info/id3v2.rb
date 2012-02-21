@@ -340,7 +340,7 @@ class ID3v2 < DelegateClass(Hash)
         # the requested encoding
         if encoding && TEXT_ENCODINGS[encoding] && out && encoding != @text_encoding_index
           begin
-            out = Iconv.iconv(@options[:encoding], TEXT_ENCODINGS[encoding], out).first
+            out = Iconv.iconv("#{@options[:encoding]}//IGNORE", TEXT_ENCODINGS[encoding], out).first
           rescue Iconv::Failure
           end
         end
